@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  '@tarojs/binding': true
+  '@tarojs/cli': true
+  esbuild: true

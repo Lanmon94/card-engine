@@ -1,0 +1,10 @@
+{
+  "name": "card-engine-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  }
+}
