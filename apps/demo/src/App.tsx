@@ -70,9 +70,30 @@ export default function App() {
   );
   const [shuffling, setShuffling] = useState(false);
 
+  // ── Hand stacked demo ──
+  const [stackedHand, setStackedHand] = useState(() => {
+    let h = createHand();
+    for (const c of initialDraw.slice(0, 4)) {
+      h = h.add({ ...c, face: CardFace.Up });
+    }
+    return h;
+  });
+  const [stackedHandKey, setStackedHandKey] = useState(0);
+
   // ── Spread cards for entrance demo ──
   const [spreadCards, setSpreadCards] = useState<typeof initialDraw>([]);
   const [spreadKey, setSpreadKey] = useState(0);
+
+  // ── Spread fan demo ──
+  const [spreadFanCards, setSpreadFanCards] = useState<typeof initialDraw>([]);
+  const [spreadFanKey, setSpreadFanKey] = useState(0);
+
+  // ── Spread grid demo ──
+  const [spreadGridCards, setSpreadGridCards] = useState<typeof initialDraw>([]);
+  const [spreadGridKey, setSpreadGridKey] = useState(0);
+
+  // ── Card states demo ──
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
   // ── Move demo ──
   const [moveSide, setMoveSide] = useState(false);       // label display only
@@ -125,6 +146,45 @@ export default function App() {
   const handleClearSpread = useCallback(() => {
     setSpreadCards([]);
     setSpreadKey(k => k + 1);
+  }, []);
+
+  const handleResetStackedHand = useCallback(() => {
+    let h = createHand();
+    for (const c of deck.draw(4)) {
+      h = h.add({ ...c, face: CardFace.Up });
+    }
+    setStackedHand(h);
+    setStackedHandKey(k => k + 1);
+  }, [deck]);
+
+  const handleFanSpreadDemo = useCallback(() => {
+    const drawn = deck.draw(5);
+    setSpreadFanCards([]);
+    setSpreadFanKey(k => k + 1);
+    setTimeout(() => setSpreadFanCards(drawn.slice(0, 1)), 50);
+    setTimeout(() => setSpreadFanCards(drawn.slice(0, 2)), 150);
+    setTimeout(() => setSpreadFanCards(drawn.slice(0, 3)), 250);
+    setTimeout(() => setSpreadFanCards(drawn.slice(0, 4)), 350);
+    setTimeout(() => setSpreadFanCards(drawn.slice(0, 5)), 450);
+  }, [deck]);
+
+  const handleClearFanSpread = useCallback(() => {
+    setSpreadFanCards([]);
+    setSpreadFanKey(k => k + 1);
+  }, []);
+
+  const handleGridSpreadDemo = useCallback(() => {
+    const drawn = deck.draw(6);
+    setSpreadGridCards([]);
+    setSpreadGridKey(k => k + 1);
+    setTimeout(() => setSpreadGridCards(drawn.slice(0, 2)), 50);
+    setTimeout(() => setSpreadGridCards(drawn.slice(0, 4)), 200);
+    setTimeout(() => setSpreadGridCards(drawn.slice(0, 6)), 350);
+  }, [deck]);
+
+  const handleClearGridSpread = useCallback(() => {
+    setSpreadGridCards([]);
+    setSpreadGridKey(k => k + 1);
   }, []);
 
   const handleMove = useCallback(() => {
@@ -215,6 +275,28 @@ export default function App() {
           />
         </div>
 
+        {/* Section 3b: Hand — Stacked with animateCards */}
+        <div style={section}>
+          <div style={label}>手牌 — 堆叠布局（发牌入场）</div>
+          <div style={{ marginBottom: '8px' }}>
+            <button onClick={handleResetStackedHand} style={{
+              padding: '6px 14px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: 'pointer',
+            }}>
+              发新牌
+            </button>
+          </div>
+          <HandView
+            key={stackedHandKey}
+            hand={stackedHand}
+            layout="stacked"
+            overlap={20}
+            animateCards
+            cardSize={cardSize}
+          />
+        </div>
+
         {/* Section 4: Piles — Stock & Waste */}
         <div style={section}>
           <div style={label}>牌堆 — 点击牌库摸牌</div>
@@ -267,6 +349,18 @@ export default function App() {
           </div>
         </div>
 
+        {/* Section 5b: Pile — Grid layout */}
+        <div style={section}>
+          <div style={label}>牌堆 — 网格布局</div>
+          <PileView
+            pile={createPile('grid-demo', PileType.Foundation, {
+              cards: initialDraw.slice(0, 6).map(c => ({ ...c, face: CardFace.Up })),
+            })}
+            layout="grid"
+            cardSize={cardSize}
+          />
+        </div>
+
         {/* Section 6: Spread — Staggered Entrance */}
         <div style={section}>
           <div style={label}>展牌 — 逐张延迟入场</div>
@@ -290,6 +384,64 @@ export default function App() {
             key={spreadKey}
             cards={spreadCards}
             layout="line"
+            animateCards
+            cardSize={cardSize}
+          />
+        </div>
+
+        {/* Section 6b: Spread — Fan layout */}
+        <div style={section}>
+          <div style={label}>展牌 — 扇形布局</div>
+          <div style={{ marginBottom: '8px', display: 'flex', gap: '8px' }}>
+            <button onClick={handleFanSpreadDemo} style={{
+              padding: '6px 14px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: 'pointer',
+            }}>
+              发牌
+            </button>
+            <button onClick={handleClearFanSpread} style={{
+              padding: '6px 14px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: 'pointer',
+            }}>
+              清空
+            </button>
+          </div>
+          <SpreadView
+            key={spreadFanKey}
+            cards={spreadFanCards}
+            layout="fan"
+            fanAngle={40}
+            animateCards
+            cardSize={cardSize}
+          />
+        </div>
+
+        {/* Section 6c: Spread — Grid layout */}
+        <div style={section}>
+          <div style={label}>展牌 — 网格布局</div>
+          <div style={{ marginBottom: '8px', display: 'flex', gap: '8px' }}>
+            <button onClick={handleGridSpreadDemo} style={{
+              padding: '6px 14px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: 'pointer',
+            }}>
+              发牌
+            </button>
+            <button onClick={handleClearGridSpread} style={{
+              padding: '6px 14px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: 'pointer',
+            }}>
+              清空
+            </button>
+          </div>
+          <SpreadView
+            key={spreadGridKey}
+            cards={spreadGridCards}
+            layout="grid"
+            columns={3}
             animateCards
             cardSize={cardSize}
           />
@@ -321,6 +473,54 @@ export default function App() {
                 card={{ ...initialDraw[0], face: CardFace.Up }}
                 size={cardSize}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 7b: Card States — Selected & Disabled */}
+        <div style={section}>
+          <div style={label}>卡牌状态 — 选中 & 禁用</div>
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <Card
+                card={{ ...initialDraw[0], face: CardFace.Up }}
+                size={cardSize}
+              />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>正常</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Card
+                card={{ ...initialDraw[1], face: CardFace.Up }}
+                size={cardSize}
+                selected
+                onTap={(c) => setSelectedCardId(selectedCardId === c.id ? null : c.id)}
+              />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>选中</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Card
+                card={{ ...initialDraw[2], face: CardFace.Up }}
+                size={cardSize}
+                disabled
+              />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>禁用</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Card
+                card={{ ...initialDraw[3], face: CardFace.Down }}
+                size={cardSize}
+                flipOnTap
+              />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>点击翻转</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Card
+                card={{ ...initialDraw[4], face: CardFace.Up }}
+                size={cardSize}
+                selected
+                disabled
+              />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>选中+禁用</div>
             </div>
           </div>
         </div>

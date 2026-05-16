@@ -95,7 +95,9 @@ export const Card: React.FC<CardProps> = ({
       width: `${dimensions.width}px`,
       height: `${dimensions.height}px`,
       borderRadius: rounded ? '6px' : '0',
-      boxShadow: shadow ? '0 2px 6px rgba(0,0,0,0.3)' : 'none',
+      boxShadow: selected
+        ? '0 0 0 3px rgba(99, 179, 237, 0.7), 0 4px 12px rgba(99, 179, 237, 0.4)'
+        : shadow ? '0 2px 6px rgba(0,0,0,0.3)' : 'none',
       position: 'relative' as const,
       cursor: disabled ? 'default' : 'pointer',
       opacity: disabled ? 0.5 : 1,
@@ -103,7 +105,7 @@ export const Card: React.FC<CardProps> = ({
       ...style,
       ...entranceStyle,
     };
-  }, [dimensions, rounded, shadow, disabled, style, platform, flipped, flipDuration, entranceStyle]);
+  }, [dimensions, rounded, shadow, selected, disabled, style, platform, flipped, flipDuration, entranceStyle]);
 
   const innerStyle = useMemo((): React.CSSProperties => {
     return getFlipInnerStyle(platform, flipped, flipDuration);
