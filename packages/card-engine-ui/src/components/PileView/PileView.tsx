@@ -6,8 +6,10 @@ import { Card } from '../Card/Card';
 import type { CardProps } from '../Card/Card';
 import { useCardAnimation } from '../../animations/useCardAnimation';
 import { shufflePreset } from '../../animations/presets/shuffle';
+import '../../animations/shuffle.css';
 
 export type PileLayout = 'stack' | 'spread' | 'grid';
+export type ShuffleVariant = 'transition' | 'dance' | 'arc' | 'rattle';
 
 export interface PileViewProps {
   pile: PileData;
@@ -16,6 +18,10 @@ export interface PileViewProps {
   faceUp?: boolean;
   animateCards?: boolean;
   shuffling?: boolean;
+  /** CSS animation variant used when shuffling. 'transition' uses the
+   *  existing AnimationDescriptor path; 'dance'/'arc'/'rattle' use
+   *  @keyframes defined in shuffle.css. Default: 'transition'. */
+  shuffleVariant?: ShuffleVariant;
   onCardTap?: (card: CardData, index: number) => void;
   onDraw?: (pile: PileData) => void;
   renderCard?: (card: CardData, index: number) => React.ReactNode;
@@ -25,6 +31,13 @@ export interface PileViewProps {
   style?: React.CSSProperties;
 }
 
+const SHUFFLE_CLASS: Record<ShuffleVariant, string> = {
+  transition: '',
+  dance: 'card-engine-shuffle--dance',
+  arc: 'card-engine-shuffle--arc',
+  rattle: 'card-engine-shuffle--rattle',
+};
+
 export const PileView: React.FC<PileViewProps> = ({
   pile,
   layout = 'stack',
@@ -32,6 +45,7 @@ export const PileView: React.FC<PileViewProps> = ({
   faceUp,
   animateCards = false,
   shuffling = false,
+  shuffleVariant = 'transition',
   onCardTap,
   onDraw,
   renderCard,
@@ -51,12 +65,16 @@ export const PileView: React.FC<PileViewProps> = ({
     return added;
   }, [pile.cards, animateCards]);
 
+  const useKeyframeShuffle = shuffling && shuffleVariant !== 'transition';
+
   const shuffleDesc = useMemo(() => {
-    if (!shuffling) return null;
+    if (!shuffling || useKeyframeShuffle) return null;
     return shufflePreset(pile.id, { duration: 500 });
-  }, [shuffling, pile.id]);
+  }, [shuffling, pile.id, useKeyframeShuffle]);
 
   const { style: shuffleStyle } = useCardAnimation(shuffleDesc);
+
+  const shuffleClassName = useKeyframeShuffle ? SHUFFLE_CLASS[shuffleVariant] : '';
 
   const containerStyle: React.CSSProperties = {
     position: 'relative',
@@ -128,7 +146,7 @@ export const PileView: React.FC<PileViewProps> = ({
 
   return (
     <View
-      className={`card-engine-pile ${className}`}
+      className={`card-engine-pile ${shuffleClassName} ${className}`}
       style={{
         ...containerStyle,
         height: layout === 'spread'

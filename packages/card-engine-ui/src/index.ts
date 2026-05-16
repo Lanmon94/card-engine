@@ -4,7 +4,7 @@ export type { CardProps } from './components/Card/Card';
 export { HandView } from './components/HandView/HandView';
 export type { HandViewProps } from './components/HandView/HandView';
 export { PileView } from './components/PileView/PileView';
-export type { PileViewProps } from './components/PileView/PileView';
+export type { PileViewProps, ShuffleVariant } from './components/PileView/PileView';
 export { SpreadView } from './components/SpreadView/SpreadView';
 export type { SpreadViewProps } from './components/SpreadView/SpreadView';
 export { CardEngine, CardEngineContext, useCardEngine } from './components/CardEngine/CardEngine';

@@ -71,6 +71,7 @@ export default function App() {
     })
   );
   const [shuffling, setShuffling] = useState(false);
+  const [shuffleVariant, setShuffleVariant] = useState<'transition' | 'dance' | 'arc' | 'rattle'>('transition');
 
   // ── Hand stacked demo ──
   const [stackedHand, setStackedHand] = useState(() => {
@@ -136,16 +137,24 @@ export default function App() {
     });
   }, []);
 
+  const shuffleDurations: Record<string, number> = {
+    transition: 600,
+    dance: 700,
+    arc: 800,
+    rattle: 450,
+  };
+
   const handleShuffle = useCallback(() => {
     setShuffling(true);
+    const dur = shuffleDurations[shuffleVariant] ?? 600;
     setTimeout(() => {
       setShuffling(false);
       setShufflePile(prev => {
         const cards = [...prev.cards].sort(() => Math.random() - 0.5);
         return createPile('shuffle-demo', PileType.Stock, { cards });
       });
-    }, 600);
-  }, []);
+    }, dur + 50);
+  }, [shuffleVariant]);
 
   const handleCanvasShuffle = useCallback(() => {
     if (canvasShuffleAnimatingRef.current) return;
@@ -374,19 +383,44 @@ export default function App() {
           </div>
         </div>
 
-        {/* Section 5: Pile — Shuffle */}
+        {/* Section 5: Pile — Shuffle (CSS variants) */}
         <div style={section}>
-          <div style={label}>牌堆 — 洗牌动画</div>
+          <div style={label}>牌堆 — CSS 洗牌动画</div>
+          <div style={{ marginBottom: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+            {(['transition', 'dance', 'arc', 'rattle'] as const).map(v => (
+              <button
+                key={v}
+                onClick={() => setShuffleVariant(v)}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  borderRadius: '6px',
+                  border: shuffleVariant === v
+                    ? '1px solid rgba(255,255,255,0.8)'
+                    : '1px solid rgba(255,255,255,0.2)',
+                  background: shuffleVariant === v
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'transparent',
+                  color: shuffleVariant === v ? '#fff' : 'rgba(255,255,255,0.5)',
+                  cursor: 'pointer',
+                }}
+              >
+                {v === 'transition' ? '过渡' : v === 'dance' ? '弹跳' : v === 'arc' ? '弧线' : '抖动'}
+              </button>
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center' }}>
             <PileView
               pile={shufflePile}
               layout="stack"
               shuffling={shuffling}
+              shuffleVariant={shuffleVariant}
             />
-            <button onClick={handleShuffle} style={{
+            <button onClick={handleShuffle} disabled={shuffling} style={{
               padding: '8px 16px', fontSize: '13px', borderRadius: '6px',
               border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
-              color: '#fff', cursor: 'pointer',
+              color: shuffling ? 'rgba(255,255,255,0.3)' : '#fff',
+              cursor: shuffling ? 'default' : 'pointer',
             }}>
               洗牌
             </button>
