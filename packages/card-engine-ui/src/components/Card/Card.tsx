@@ -4,6 +4,7 @@ import type { Card as CardData, CardFace } from '@card-engine/core';
 import { CardFace as Face } from '@card-engine/core';
 import { CardFace as DefaultCardFace } from './CardFace';
 import { CardBack as DefaultCardBack } from './CardBack';
+import { useCardEngine } from '../CardEngine/CardEngine';
 import { usePlatform } from '../../hooks/usePlatform';
 import { useCardAnimation } from '../../animations/useCardAnimation';
 import { dealPreset } from '../../animations/presets/deal';
@@ -60,6 +61,7 @@ export const Card: React.FC<CardProps> = ({
   renderCorner,
 }) => {
   const platform = usePlatform();
+  const { config } = useCardEngine();
   const dimensions = typeof size === 'string' ? SIZE_MAP[size] : size;
   const isFaceDown = card.face === Face.Down;
 
@@ -138,7 +140,7 @@ export const Card: React.FC<CardProps> = ({
 
   const backContent = renderBack
     ? renderBack()
-    : <DefaultCardBack />;
+    : <DefaultCardBack imageSrc={config.cardBackImage} />;
 
   return (
     <View

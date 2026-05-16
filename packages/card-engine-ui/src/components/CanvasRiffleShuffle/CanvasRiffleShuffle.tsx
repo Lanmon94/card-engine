@@ -1,10 +1,11 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import type { Card as CardData } from '@card-engine/core';
 import {
   drawCardFace,
   drawCardBack,
   roundedRect,
 } from '../../animations/canvas/card-renderer';
+import { useCardEngine } from '../CardEngine/CardEngine';
 
 // ── Easing ──
 
@@ -100,6 +101,34 @@ export const CanvasRiffleShuffle: React.FC<CanvasRiffleShuffleProps> = ({
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
+  const { config } = useCardEngine();
+  const backImageRef = useRef<HTMLImageElement | null>(null);
+  const drawBackRef = useRef(config.drawBack);
+  drawBackRef.current = config.drawBack;
+  const [textureVersion, setTextureVersion] = useState(0);
+
+  useEffect(() => {
+    if (config.cardBackImage) {
+      const img = new Image();
+      img.src = config.cardBackImage;
+      img.onload = () => {
+        backImageRef.current = img;
+        textureCacheRef.current.clear();
+        setTextureVersion(v => v + 1);
+      };
+      return () => { img.onload = null; };
+    } else {
+      backImageRef.current = null;
+      textureCacheRef.current.clear();
+      setTextureVersion(v => v + 1);
+    }
+  }, [config.cardBackImage]);
+
+  useEffect(() => {
+    textureCacheRef.current.clear();
+    setTextureVersion(v => v + 1);
+  }, [config.drawBack]);
+
   // ── Texture cache ──
 
   const getCardTexture = useCallback(
@@ -113,6 +142,10 @@ export const CanvasRiffleShuffle: React.FC<CanvasRiffleShuffleProps> = ({
         const ctx = entry.getContext('2d')!;
         if (isFaceUp) {
           drawCardFace(ctx, cardWidth, cardHeight, card);
+        } else if (drawBackRef.current) {
+          drawBackRef.current(ctx, cardWidth, cardHeight);
+        } else if (backImageRef.current) {
+          ctx.drawImage(backImageRef.current, 0, 0, cardWidth, cardHeight);
         } else {
           drawCardBack(ctx, cardWidth, cardHeight);
         }
@@ -129,7 +162,7 @@ export const CanvasRiffleShuffle: React.FC<CanvasRiffleShuffleProps> = ({
     for (const card of cards) {
       getCardTexture(card, faceUp, cache);
     }
-  }, [cards, faceUp, getCardTexture]);
+  }, [cards, faceUp, getCardTexture, textureVersion]);
 
   // ── DPR setup ──
 

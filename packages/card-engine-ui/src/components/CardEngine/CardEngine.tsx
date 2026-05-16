@@ -9,6 +9,8 @@ export interface CardEngineConfig {
   shadow?: boolean;
   renderFace?: (card: CardData) => React.ReactNode;
   renderBack?: () => React.ReactNode;
+  cardBackImage?: string;
+  drawBack?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
 }
 
 export interface CardEngineProps {
