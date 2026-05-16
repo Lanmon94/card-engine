@@ -5,3 +5,4 @@ dist/
 .env
 .cache
 .npmrc
+.claude/settings.local.json
