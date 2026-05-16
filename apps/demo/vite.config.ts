@@ -1,12 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import { taroAdapter } from '@card-engine/ui/adapter/vite';
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@tarojs/components': path.resolve(__dirname, 'src/components/taro-adapter.ts'),
-    },
-  },
+  plugins: [react(), taroAdapter()],
 });
