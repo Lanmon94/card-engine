@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   createStandardDeck,
   createHand,
@@ -75,8 +75,9 @@ export default function App() {
   const [spreadKey, setSpreadKey] = useState(0);
 
   // ── Move demo ──
-  const [moveSide, setMoveSide] = useState(false);
+  const [moveSide, setMoveSide] = useState(false);       // label display only
   const [moveTrigger, setMoveTrigger] = useState(0);
+  const stableXRef = useRef(-120);                        // true rendered position
 
   const cardSize: CardProps['size'] = { width: 70, height: 100 };
 
@@ -133,22 +134,26 @@ export default function App() {
 
   const moveDesc = useMemo(() => {
     if (moveTrigger === 0) return null;
-    const fromX = moveSide ? -120 : 120;
-    const toX = moveSide ? 120 : -120;
-    return movePreset('move-card', {
-      from: { x: fromX, y: 0 },
-      to: { x: toX, y: 0 },
-      duration: 400,
-    });
-  }, [moveTrigger, moveSide]);
+    const fromX = stableXRef.current;
+    const toX = fromX === 120 ? -120 : 120;
+    return {
+      ...movePreset('move-card', {
+        from: { x: fromX, y: 0 },
+        to: { x: toX, y: 0 },
+        duration: 400,
+      }),
+      onComplete: () => {
+        stableXRef.current = toX;
+      },
+    };
+  }, [moveTrigger]);
 
   const { style: animStyle, isAnimating: isMoving } = useCardAnimation(moveDesc);
 
   const moveWrapperStyle: React.CSSProperties = (() => {
     if (moveTrigger === 0) return { transform: 'translate(-120px, 0px)' };
     if (isMoving) return animStyle as React.CSSProperties;
-    const x = moveSide ? 120 : -120;
-    return { transform: `translate(${x}px, 0px)` };
+    return { transform: `translate(${stableXRef.current}px, 0px)` };
   })();
 
   return (
