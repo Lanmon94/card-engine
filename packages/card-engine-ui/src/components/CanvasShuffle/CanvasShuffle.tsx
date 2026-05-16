@@ -4,61 +4,10 @@ import {
   drawCardFace,
   drawCardBack,
   roundedRect,
-  CARD_RADIUS,
 } from '../../animations/canvas/card-renderer';
-
-// ── Bend rendering constants ──
-
-const NUM_STRIPS = 24;
-const MAX_BEND_PX = 28;
 
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
-}
-
-// ── Bend & shadow helpers ──
-
-function drawBentCard(
-  ctx: CanvasRenderingContext2D,
-  texture: HTMLCanvasElement,
-  cx: number,
-  cy: number,
-  w: number,
-  h: number,
-  bendPx: number,
-) {
-  if (Math.abs(bendPx) < 0.5) {
-    ctx.drawImage(texture, cx, cy, w, h);
-    return;
-  }
-  const stripH = h / NUM_STRIPS;
-  for (let i = 0; i < NUM_STRIPS; i++) {
-    const srcY = i * stripH;
-    const t = i / (NUM_STRIPS - 1);
-    const profile = Math.sin(t * Math.PI);
-    const offsetX = bendPx * profile;
-    const overlap = 0.5;
-    ctx.drawImage(
-      texture,
-      0, srcY, w, stripH,
-      cx + offsetX, cy + srcY, w, stripH + overlap,
-    );
-  }
-}
-
-function drawCardShadow(
-  ctx: CanvasRenderingContext2D,
-  x: number, y: number,
-  w: number, h: number,
-  altitudeRatio: number,
-) {
-  const baseOffset = 3;
-  const maxExtra = 14;
-  const offset = baseOffset + altitudeRatio * maxExtra;
-  const alpha = 0.15 + altitudeRatio * 0.08;
-  ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-  roundedRect(ctx, x + offset, y + offset, w, h, CARD_RADIUS);
-  ctx.fill();
 }
 
 // ── Types ──
@@ -95,8 +44,6 @@ interface FlyingCard {
   finished: boolean;
   currentX: number;
   currentY: number;
-  currentBend: number;
-  altitudeRatio: number;
 }
 
 interface AnimState {
@@ -267,11 +214,6 @@ export const CanvasShuffle: React.FC<CanvasShuffleProps> = ({
         fc.currentX = fc.startX + (fc.targetX - fc.startX) * easedProgress;
         fc.currentY =
           fc.centerY - state.arcHeightPx * Math.sin(progress * Math.PI);
-        fc.altitudeRatio = Math.sin(progress * Math.PI);
-        fc.currentBend =
-          MAX_BEND_PX *
-          Math.sin(progress * Math.PI) *
-          (fc.side === 'left' ? 1 : -1);
 
         let finalX = fc.currentX;
         let finalY = fc.currentY;
@@ -288,34 +230,12 @@ export const CanvasShuffle: React.FC<CanvasShuffleProps> = ({
           fc.finished = true;
           fc.currentX = fc.targetX;
           fc.currentY = fc.centerY;
-          fc.currentBend = 0;
           finalX = fc.targetX;
           finalY = fc.centerY;
         }
 
-        drawCardShadow(
-          ctx,
-          finalX,
-          finalY,
-          cardWidth,
-          cardHeight,
-          fc.finished ? 0 : fc.altitudeRatio,
-        );
-
         const texture = getCardTexture(fc.card, faceUp, cache);
-        if (fc.finished) {
-          ctx.drawImage(texture, finalX, finalY, cardWidth, cardHeight);
-        } else {
-          drawBentCard(
-            ctx,
-            texture,
-            finalX,
-            finalY,
-            cardWidth,
-            cardHeight,
-            fc.currentBend,
-          );
-        }
+        ctx.drawImage(texture, finalX, finalY, cardWidth, cardHeight);
       }
 
       ctx.restore();
@@ -380,8 +300,6 @@ export const CanvasShuffle: React.FC<CanvasShuffleProps> = ({
       finished: false,
       currentX: 0,
       currentY: 0,
-      currentBend: 0,
-      altitudeRatio: 0,
     }));
 
     animStateRef.current = {
