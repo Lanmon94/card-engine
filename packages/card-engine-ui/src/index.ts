@@ -13,6 +13,8 @@ export type { CardEngineProps, CardEngineConfig } from './components/CardEngine/
 // Canvas-based components
 export { CanvasShuffle } from './components/CanvasShuffle/CanvasShuffle';
 export type { CanvasShuffleProps } from './components/CanvasShuffle/CanvasShuffle';
+export { CanvasRiffleShuffle } from './components/CanvasRiffleShuffle/CanvasRiffleShuffle';
+export type { CanvasRiffleShuffleProps } from './components/CanvasRiffleShuffle/CanvasRiffleShuffle';
 
 // Animation
 export type { AnimationDescriptor, AnimationTarget, TransformState } from './animations/types';

@@ -17,6 +17,7 @@ import {
   PileView,
   SpreadView,
   CanvasShuffle,
+  CanvasRiffleShuffle,
   useCardAnimation,
   movePreset,
   type CardProps,
@@ -103,6 +104,13 @@ export default function App() {
   const [canvasShuffleTrigger, setCanvasShuffleTrigger] = useState(0);
   const canvasShuffleAnimatingRef = useRef(false);
 
+  // ── Canvas riffle shuffle demo ──
+  const [riffleShuffleCards, setRiffleShuffleCards] = useState(() =>
+    initialDraw.slice(0, 6).map(c => ({ ...c, face: CardFace.Down }))
+  );
+  const [riffleShuffleTrigger, setRiffleShuffleTrigger] = useState(0);
+  const riffleShuffleAnimatingRef = useRef(false);
+
   // ── Move demo ──
   const [moveSide, setMoveSide] = useState(false);       // label display only
   const [moveTrigger, setMoveTrigger] = useState(0);
@@ -148,6 +156,20 @@ export default function App() {
   const handleCanvasShuffleComplete = useCallback(() => {
     canvasShuffleAnimatingRef.current = false;
     setCanvasShuffleCards(prev => {
+      const shuffled = [...prev].sort(() => Math.random() - 0.5);
+      return shuffled.map(c => ({ ...c, face: CardFace.Down }));
+    });
+  }, []);
+
+  const handleRiffleShuffle = useCallback(() => {
+    if (riffleShuffleAnimatingRef.current) return;
+    riffleShuffleAnimatingRef.current = true;
+    setRiffleShuffleTrigger(t => t + 1);
+  }, []);
+
+  const handleRiffleShuffleComplete = useCallback(() => {
+    riffleShuffleAnimatingRef.current = false;
+    setRiffleShuffleCards(prev => {
       const shuffled = [...prev].sort(() => Math.random() - 0.5);
       return shuffled.map(c => ({ ...c, face: CardFace.Down }));
     });
@@ -392,6 +414,31 @@ export default function App() {
               opacity: canvasShuffleAnimatingRef.current ? 0.5 : 1,
             }}>
               Canvas 洗牌
+            </button>
+          </div>
+        </div>
+
+        {/* Section 5d: Canvas Riffle Shuffle */}
+        <div style={section}>
+          <div style={label}>牌堆 — Canvas 洗牌动画 (Riffle 交错式)</div>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+            <CanvasRiffleShuffle
+              cards={riffleShuffleCards}
+              trigger={riffleShuffleTrigger}
+              cardWidth={70}
+              cardHeight={100}
+              faceUp={false}
+              canvasWidth={520}
+              canvasHeight={300}
+              onComplete={handleRiffleShuffleComplete}
+            />
+            <button onClick={handleRiffleShuffle} style={{
+              padding: '8px 16px', fontSize: '13px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: riffleShuffleAnimatingRef.current ? 'default' : 'pointer',
+              opacity: riffleShuffleAnimatingRef.current ? 0.5 : 1,
+            }}>
+              Riffle 洗牌
             </button>
           </div>
         </div>
