@@ -16,6 +16,14 @@
 - **Taro 跨平台 UI** — H5、微信小程序、React Native（CSS 3D 翻转动效，RN 回退为 opacity 渐变）
 - **动画系统** — 翻牌、发牌、洗牌、移动预设动画，支持序列化和编排
 
+## 文档
+
+完整使用文档见 [docs/README.md](./docs/README.md)，涵盖：
+
+- [Core 使用说明](./docs/core.md) — 数据模型、状态流转、工具函数
+- [UI 使用说明](./docs/ui.md) — 组件、布局、动画系统、Canvas 特效
+- [牌背图案配置](./docs/card-back.md) — 图片/React/Canvas 三种自定义方式
+
 ## 包结构
 
 | 包 | 说明 | 依赖 |
