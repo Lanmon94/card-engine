@@ -20,6 +20,7 @@ import {
   movePreset,
   type CardProps,
 } from '@card-engine/ui';
+import { CanvasShuffle } from './components/CanvasShuffle';
 
 const section: React.CSSProperties = {
   backgroundColor: 'rgba(255,255,255,0.08)',
@@ -95,6 +96,13 @@ export default function App() {
   // ── Card states demo ──
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
+  // ── Canvas shuffle demo ──
+  const [canvasShuffleCards, setCanvasShuffleCards] = useState(() =>
+    initialDraw.slice(0, 6).map(c => ({ ...c, face: CardFace.Down }))
+  );
+  const [canvasShuffleTrigger, setCanvasShuffleTrigger] = useState(0);
+  const canvasShuffleAnimatingRef = useRef(false);
+
   // ── Move demo ──
   const [moveSide, setMoveSide] = useState(false);       // label display only
   const [moveTrigger, setMoveTrigger] = useState(0);
@@ -129,6 +137,20 @@ export default function App() {
         return createPile('shuffle-demo', PileType.Stock, { cards });
       });
     }, 600);
+  }, []);
+
+  const handleCanvasShuffle = useCallback(() => {
+    if (canvasShuffleAnimatingRef.current) return;
+    canvasShuffleAnimatingRef.current = true;
+    setCanvasShuffleTrigger(t => t + 1);
+  }, []);
+
+  const handleCanvasShuffleComplete = useCallback(() => {
+    canvasShuffleAnimatingRef.current = false;
+    setCanvasShuffleCards(prev => {
+      const shuffled = [...prev].sort(() => Math.random() - 0.5);
+      return shuffled.map(c => ({ ...c, face: CardFace.Down }));
+    });
   }, []);
 
   const handleSpreadDemo = useCallback(() => {
@@ -345,6 +367,31 @@ export default function App() {
               color: '#fff', cursor: 'pointer',
             }}>
               洗牌
+            </button>
+          </div>
+        </div>
+
+        {/* Section 5c: Canvas Shuffle */}
+        <div style={section}>
+          <div style={label}>牌堆 — Canvas 洗牌动画 (抛物线飞入 + 弯曲)</div>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+            <CanvasShuffle
+              cards={canvasShuffleCards}
+              trigger={canvasShuffleTrigger}
+              cardWidth={70}
+              cardHeight={100}
+              faceUp={false}
+              canvasWidth={520}
+              canvasHeight={300}
+              onComplete={handleCanvasShuffleComplete}
+            />
+            <button onClick={handleCanvasShuffle} style={{
+              padding: '8px 16px', fontSize: '13px', borderRadius: '6px',
+              border: '1px solid rgba(255,255,255,0.3)', background: 'transparent',
+              color: '#fff', cursor: canvasShuffleAnimatingRef.current ? 'default' : 'pointer',
+              opacity: canvasShuffleAnimatingRef.current ? 0.5 : 1,
+            }}>
+              Canvas 洗牌
             </button>
           </div>
         </div>
