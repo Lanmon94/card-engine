@@ -16,11 +16,11 @@ import {
   HandView,
   PileView,
   SpreadView,
+  CanvasShuffle,
   useCardAnimation,
   movePreset,
   type CardProps,
 } from '@card-engine/ui';
-import { CanvasShuffle } from './components/CanvasShuffle';
 
 const section: React.CSSProperties = {
   backgroundColor: 'rgba(255,255,255,0.08)',

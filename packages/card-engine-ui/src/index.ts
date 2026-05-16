@@ -10,6 +10,10 @@ export type { SpreadViewProps } from './components/SpreadView/SpreadView';
 export { CardEngine, CardEngineContext, useCardEngine } from './components/CardEngine/CardEngine';
 export type { CardEngineProps, CardEngineConfig } from './components/CardEngine/CardEngine';
 
+// Canvas-based components
+export { CanvasShuffle } from './components/CanvasShuffle/CanvasShuffle';
+export type { CanvasShuffleProps } from './components/CanvasShuffle/CanvasShuffle';
+
 // Animation
 export type { AnimationDescriptor, AnimationTarget, TransformState } from './animations/types';
 export { useCardAnimation } from './animations/useCardAnimation';
