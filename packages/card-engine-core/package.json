@@ -2,10 +2,18 @@
   "name": "@card-engine/core",
   "version": "0.1.0",
   "description": "Pure TypeScript card game data models and utilities",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "files": ["src/"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lanmon94/card-engine"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist/"],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
