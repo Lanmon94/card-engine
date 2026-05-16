@@ -1,6 +1,6 @@
 {
   "name": "@card-engine/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pure TypeScript card game data models and utilities",
   "license": "MIT",
   "repository": {
