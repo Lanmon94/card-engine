@@ -167,8 +167,10 @@ export const PileView: React.FC<PileViewProps> = ({
             key={card.id}
             style={getCardStyle(realIndex, pile.cards.length)}
             onClick={(e) => {
-              e.stopPropagation();
-              if (onCardTap) onCardTap(card, index);
+              if (onCardTap) {
+                e.stopPropagation();
+                onCardTap(card, index);
+              }
             }}
           >
             {renderCard ? (
